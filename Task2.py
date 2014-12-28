@@ -15,10 +15,11 @@ class Parser():
       while True:
          print("Press 1 to save Json file")
          print("Press 2 to insert Json data to MongoDB")
-         print("Press 3 to update record in database")
-         print("Press 4 to delete record in database")
-         print("Press 5 to tell a joke!")
-         print("Press 6 to exit")
+         print("Press 3 to show data from database")
+         print("Press 4 to update record in database")
+         print("Press 5 to delete record in database")
+         print("Press 6 to tell a joke!")
+         print("Press 7 to exit")
          try:
             choise = input('Select operation: ')
             choise = int(choise)
@@ -34,20 +35,37 @@ class Parser():
                   db = connection["pb"] 
                   collectionList = db.collection_names()
                   if ("pb_collection" in collectionList):
+                     self.showData()
+                  else:
+                     print("Create collection first, by using option 2 in main manu")
+            elif choise == 4:
+               connection = Connection('localhost', 27017)
+               dbNamesList = connection.database_names()
+               if ("pb" in dbNamesList):
+                  db = connection["pb"] 
+                  collectionList = db.collection_names()
+                  if ("pb_collection" in collectionList):
                      self.updateRecordInDB()
                   else:
                      print("Create collection first, by using option 2 in main manu")
                else:
                   print("Create database first, by using option 2 in main manu")
-            elif choise == 4:
-               try:
-                  self.deleteRecordInDB()
-               except Exception, e:
-                  ("Unknown error, please conntact with provider. Error content: ", e)
             elif choise == 5:
+               connection = Connection('localhost', 27017)
+               dbNamesList = connection.database_names()
+               if ("pb" in dbNamesList):
+                  db = connection["pb"] 
+                  collectionList = db.collection_names()
+                  if ("pb_collection" in collectionList):
+                     self.deleteRecordInDB()
+                  else:
+                     print("Create collection first, by using option 2 in main manu")
+               else:
+                  print("Create database first, by using option 2 in main manu")
+            elif choise == 6:
                self.tellJoke()
           
-            elif choise == 6:
+            elif choise == 7:
                print("Bye, bye")
                break
             else:
@@ -111,6 +129,7 @@ class Parser():
          print ("Data inserted into DB")
       except Exception, e:
          ("Unknown error, please conntact with provider. Error content: ", e)
+         
    def updateRecordInDB(self):
       try:
          while True:
@@ -122,7 +141,6 @@ class Parser():
                   print ("select data to update from the list(write full word): ")
                   print (nameInRecrod)
                   nameInRecordForUpdate = raw_input()
-
                   if (nameInRecordForUpdate in nameInRecrod):
                      print ("Write new value: ")
                      newValue = raw_input()
@@ -151,6 +169,7 @@ class Parser():
             break
       except Exception, e:
          ("Unknown error, please conntact with provider. Error content: ", e)
+
    def tellJoke(self):
       print("Find in web")
       print
@@ -159,5 +178,12 @@ class Parser():
       print
       print("Press enter to continue")
       raw_input()
+
+   def showData(self):
+      client = pymongo.MongoClient()
+      db = client.pb
+      data = db.pb_collection.find()
+      for a in data:
+         print (a)
 if __name__ == "__main__":
    Parser()
